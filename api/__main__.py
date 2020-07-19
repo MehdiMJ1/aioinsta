@@ -1,27 +1,39 @@
 from aiohttp import web
 
-from routes import setup_routes
+from api.config import Config
+from api.db import init_db
+from api.routes import setup_routes
 
 
 def main() -> None:
     """Application entrypoint."""
 
-    app = web.Application()
+    config = Config.load_config()
 
-    setup_application(app)
+    app = init_app(config)
 
     web.run_app(app)
 
 
-def setup_application(app: web.Application) -> None:
+async def init_app(config: dict) -> web.Application:
     """
-    Setup components of the application.
+    Initialize instance of current application.
 
-    :param app: Current application
-    :type app: web.Application
+    :param config: Configuration for application
+    :type config: dict
+    :return: Current application
+    :rtype: web.Application
     """
+
+    app = web.Application()
 
     setup_routes(app)
+
+    app["config"] = config
+
+    app["db"] = await init_db(config)
+
+    return app
 
 
 if __name__ == "__main__":
