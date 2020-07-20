@@ -8,11 +8,9 @@ from api.logic.posts import (
     get_posts_likes_count,
     get_posts_comments_count,
     get_posts_comments,
-    PostNotFoundException
+    PostNotFoundException,
 )
-from api.logic.users import (
-    get_user_or_exception
-)
+from api.logic.users import get_user_or_exception
 from api.utils.json_serializers import to_json
 from api.utils.exceptions import RecordNotFoundException
 
@@ -51,9 +49,10 @@ class PostList(web.View):
             )
 
             if succeed:
-                response, status = await get_post_or_exception(
-                    conn, post_id=post_id
-                ), 201
+                response, status = (
+                    await get_post_or_exception(conn, post_id=post_id),
+                    201,
+                )
             else:
                 response, status = {"errors": errors}, 400
 
@@ -153,13 +152,11 @@ class Post(web.View):
             except PostNotFoundException as exc:
                 return exc.response()
 
-        return web.json_response(
-            text=to_json({"comments": comments_count})
-        )
+        return web.json_response(text=to_json({"comments": comments_count}))
 
 
 """class User(web.View):
-    """"""
+    """ """
 
     async def get(self):
         user_id = int(self.request.match_info.get("user_id"))
@@ -186,9 +183,7 @@ class BaseWebView(web.View):
 
         async with self.request.app["db"].acquire() as conn:
             try:
-                obj = await self.get_func(
-                    conn, **{self.field: field_id}
-                )
+                obj = await self.get_func(conn, **{self.field: field_id})
             except RecordNotFoundException as exc:
                 return exc.response()
 

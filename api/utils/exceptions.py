@@ -33,10 +33,7 @@ class RecordNotFoundException(ValueError):
         :rtype: web.Response
         """
 
-        return web.json_response(
-            text=to_json(self.error_dict()),
-            status=404
-        )
+        return web.json_response(text=to_json(self.error_dict()), status=404)
 
 
 class PostNotFoundException(RecordNotFoundException):

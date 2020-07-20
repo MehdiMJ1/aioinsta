@@ -24,7 +24,7 @@ users = Table(
     Column("name", String(64), nullable=False),
     Column("description", Text),
     Column("email", String(120), nullable=False),
-    Column("password_hash", String(128), nullable=False),
+    Column("password_hash", String(192), nullable=False),
 )
 
 followers = Table(

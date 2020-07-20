@@ -67,7 +67,6 @@ class Config:
 
 
 class TestConfig(Config):
-
     @property
     def get_db_params(self):
         """Get params of test db."""
@@ -77,7 +76,7 @@ class TestConfig(Config):
             "pass": getenv("TEST_DB_PASS", "test_pass"),
             "db": getenv("TEST_DB_DB", "test_db"),
             "host": getenv("TEST_DB_HOST", "localhost"),
-            "post": getenv("TEST_DB_PORT", 5432)
+            "post": getenv("TEST_DB_PORT", 5432),
         }
 
     @property

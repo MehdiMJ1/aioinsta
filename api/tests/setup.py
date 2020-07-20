@@ -55,7 +55,8 @@ def teardown_db(db_name: str) -> None:
 
     with engine.connect() as conn:
         # terminate all connections to be able to drop database
-        conn.execute(f"""
+        conn.execute(
+            f"""
             SELECT 
                 pg_terminate_backend(pg_stat_activity.pid)
             FROM 
@@ -63,7 +64,8 @@ def teardown_db(db_name: str) -> None:
             WHERE 
                 pg_stat_activity.datname = '{db_name}' AND 
                 pid <> pg_backend_pid();
-        """)
+        """
+        )
         conn.execute(f"DROP DATABASE IF EXISTS {db_name}")
 
 
@@ -103,9 +105,13 @@ async def create_users(
     :rtype: List[Optional[int]]
     """
 
-    values = [("('Test user {i}', 'Test user {i}', 'Test user {i}', "
-              "'test-user-{i}@test.test', '')").replace("{i}", str(i))
-              for i in range(1, count + 1)]
+    values = [
+        (
+            "('Test user {i}', 'Test user {i}', 'Test user {i}', "
+            "'test-user-{i}@test.test', '')"
+        ).replace("{i}", str(i))
+        for i in range(1, count + 1)
+    ]
 
     result = await conn.fetch(
         f"""

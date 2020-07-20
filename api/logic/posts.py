@@ -102,44 +102,7 @@ async def create_post(
     return post_id
 
 
-async def edit_post_text(
-    conn: PoolConnectionProxy, *, post_id: int, text: str,
-) -> int:
-    """
-    Edit the post's text.
-
-    :param conn: Pool of connections to database
-    :type conn: PoolConnectionProxy
-    :param post_id: Post's identifier
-    :type post_id: int
-    :param text: Post's text
-    :type text: str
-    :raise PostNotFoundException: Post not found
-    :return: Post's id
-    :rtype: int
-    """
-
-    await get_post_or_exception(conn, post_id=post_id)
-
-    await conn.execute(
-        """
-        UPDATE 
-            post 
-        SET 
-            text = $1
-        WHERE
-            id = $2 
-        """,
-        text,
-        post_id,
-    )
-
-    return post_id
-
-
-async def delete_post(
-    conn: PoolConnectionProxy, *, post_id: int
-) -> bool:
+async def delete_post(conn: PoolConnectionProxy, *, post_id: int) -> bool:
     """
     Delete the post.
 
@@ -234,9 +197,7 @@ async def get_posts_comments(
     await get_post_or_exception(conn, post_id=post_id)
 
     result = await conn.fetch(
-        select([
-            comments.c.user_id, comments.c.text, comments.c.timestamp]
-        )
+        select([comments.c.user_id, comments.c.text, comments.c.timestamp])
         .where(comments.c.post_id == post_id)
         .order_by(comments.c.timestamp)
     )
@@ -266,10 +227,9 @@ async def is_post_liked(
     await get_user_or_exception(conn, user_id=user_id)
 
     result = await conn.fetchval(
-        select([func.count()]).where(and_(
-            likes.c.post_id == post_id,
-            likes.c.user_id == user_id
-        ))
+        select([func.count()]).where(
+            and_(likes.c.post_id == post_id, likes.c.user_id == user_id)
+        )
     )
 
     return bool(result)
@@ -296,11 +256,7 @@ async def like_post(
     if await is_post_liked(conn, post_id=post_id, user_id=user_id):
         return False
 
-    await conn.execute(
-        likes.insert().values(
-            post_id=post_id, user_id=user_id
-        )
-    )
+    await conn.execute(likes.insert().values(post_id=post_id, user_id=user_id))
 
     return True
 
@@ -327,10 +283,9 @@ async def unlike_post(
         return False
 
     await conn.execute(
-        likes.delete().where(and_(
-            likes.c.post_id == post_id,
-            likes.c.user_id == user_id
-        ))
+        likes.delete().where(
+            and_(likes.c.post_id == post_id, likes.c.user_id == user_id)
+        )
     )
 
     return True
